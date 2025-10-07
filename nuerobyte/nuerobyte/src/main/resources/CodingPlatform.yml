@@ -1,0 +1,335 @@
+openapi: 3.0.3
+info:
+  title: AI Driven Coding Platform APIs
+  version: 1.0.0
+  description: >
+    This OpenAPI spec defines endpoints for Users, Problems, and Submissions in
+    the AI-Driven Coding Platform built with Spring Boot and Hibernate.
+  contact:
+    name: Lokshitt Sharma
+    email: lokshitt@example.com
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local server
+
+tags:
+  - name: User
+    description: Manage platform users
+  - name: Problem
+    description: Manage coding problems
+  - name: Submission
+    description: Manage code submissions and AI evaluations
+
+paths:
+  /users:
+    get:
+      tags: [User]
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags: [User]
+      summary: Create new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+
+  /users/{id}:
+    get:
+      tags: [User]
+      summary: Get user by ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Found user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+        '404':
+          description: User not found
+
+  /problems:
+    get:
+      tags: [Problem]
+      summary: Get all problems
+      operationId: getAllProblems
+      responses:
+        '200':
+          description: List of problems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Problem'
+    post:
+      tags: [Problem]
+      summary: Create new problem
+      operationId: createProblem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Problem'
+      responses:
+        '200':
+          description: Created problem
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+
+  /problems/{id}:
+    get:
+      tags: [Problem]
+      summary: Get problem by ID
+      operationId: getProblemById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Found problem
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+        '404':
+          description: Problem not found
+
+  /submissions:
+    post:
+      tags: [Submission]
+      summary: Create submission
+      operationId: createSubmission
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: problemId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+
+  /submissions/{id}:
+    get:
+      tags: [Submission]
+      summary: Get submission by ID
+      operationId: getSubmissionById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Found submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+
+  /submissions/user/{userId}:
+    get:
+      tags: [Submission]
+      summary: Get submissions by user
+      operationId: getSubmissionsByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of user submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BasicResponseDTO'
+
+  /submissions/problem/{problemId}:
+    get:
+      tags: [Submission]
+      summary: Get submissions by problem
+      operationId: getSubmissionsByProblem
+      parameters:
+        - name: problemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of problem submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BasicResponseDTO'
+
+  /submissions/{submissionId}/result:
+    put:
+      tags: [Submission]
+      summary: Update submission result
+      operationId: updateSubmissionResult
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: score
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: feedback
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submission result updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponseDTO'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        totalPoints:
+          type: number
+          format: double
+
+    Problem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+        timeLimitSeconds:
+          type: integer
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        problemId:
+          type: integer
+          format: int64
+        code:
+          type: string
+        score:
+          type: integer
+        verdict:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        language:
+          type: string
+        runtimeMs:
+          type: integer
+        memoryKb:
+          type: integer
+          
+    BasicResponseDTO:
+      type: object
+      properties: 
+        result:
+            type: object
+        status: 
+            type: boolean
+        responseCode: 
+            type: integer
+        message: 
+            type: string  
+          
