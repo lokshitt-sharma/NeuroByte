@@ -283,9 +283,9 @@ components:
         id:
           type: integer
           format: int64
-        title:
+        type:
           type: string
-        description:
+        language:
           type: string
         difficulty:
           type: string

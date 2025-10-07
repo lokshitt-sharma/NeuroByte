@@ -34,7 +34,7 @@ public class ProblemGeneratorService {
     /**
      * Kick off async problem generation. Returns problemId of a placeholder that will be populated.
      */
-    public ProblemEntity startGeneration(String topic, String difficulty, List<String> languageHints, Long authorId) {
+    public ProblemEntity startGeneration(String topic, String difficulty, String language) {
     	
         ProblemEntity p = new ProblemEntity();
         p.setTitle("GENERATING: " + topic);
@@ -45,15 +45,15 @@ public class ProblemGeneratorService {
         ProblemEntity saved = problemRepository.save(p);
 
         // async worker will populate it
-        generateAsync(saved.getId(), topic, difficulty, languageHints, authorId);
+        generateAsync(saved.getId(), topic, difficulty, language);
         return saved;
     }
 
 	@Async("generationExecutor")
-    public void generateAsync(Long problemId, String topic, String difficulty, List<String> languageHints, Long authorId) {
+    public void generateAsync(Long problemId, String topic, String difficulty,String language) {
         ProblemEntity problem = problemRepository.findById(problemId).orElseThrow();
 
-        String prompt = buildPrompt(topic, difficulty, languageHints);
+        String prompt = buildPrompt(topic, difficulty, language);
         // call model — use a generous timeout
         String raw = ollamaClient.generate(MODEL, prompt, 25000, Duration.ofMinutes(10));
 
@@ -113,12 +113,11 @@ public class ProblemGeneratorService {
         }
     }
 
-    private String buildPrompt(String topic, String difficulty, List<String> languageHints) {
-        String hints = String.join(", ", languageHints);
+    private String buildPrompt(String topic, String difficulty, String language) {
         String prompt = "SYSTEM: You are an expert contest problem writer. Output ONLY valid JSON...\n";
         prompt += "USER: Create a programming problem in topic: " + topic
                 + " Difficulty: " + difficulty
-                + " Languages: " + hints + "\n";
+                + " Language: " + language + "\n";
         prompt += "Follow this strict JSON schema: {title, description, difficulty, languageHints, testcases:[{input, expectedOutput, isHidden}] }\n";
         prompt += "Produce exactly 20 testcases; 3 must be isHidden=false (visible). Use varied sizes and edge-cases.\n";
         prompt += "Return JSON only.";
