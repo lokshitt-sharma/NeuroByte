@@ -9,7 +9,6 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@SuppressWarnings("unused")
 @Table(name = "test_case")
 public class TestCaseEntity {
 	@Id
@@ -26,6 +25,6 @@ public class TestCaseEntity {
 	@Column(columnDefinition = "text")
 	private String expectedOutput;
 
-	private boolean isHidden = false;
+	private boolean isHidden = true;
 
 }
